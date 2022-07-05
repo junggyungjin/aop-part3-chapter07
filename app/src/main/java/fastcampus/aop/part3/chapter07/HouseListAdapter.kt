@@ -1,6 +1,8 @@
 package fastcampus.aop.part3.chapter07
 
+import android.content.Context
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +13,10 @@ import androidx.recyclerview.widget.ListAdapter
 
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
-class HouseViewPagerAdapter(val itemClicked: (HouseModel) -> Unit): ListAdapter<HouseModel, HouseViewPagerAdapter.ItemViewHolder>(differ) {
+class HouseListAdapter: ListAdapter<HouseModel, HouseListAdapter.ItemViewHolder>(differ) {
 
     inner class  ItemViewHolder(val view: View): RecyclerView.ViewHolder(view) {
 
@@ -24,12 +28,9 @@ class HouseViewPagerAdapter(val itemClicked: (HouseModel) -> Unit): ListAdapter<
             titleTextView.text = houseModel.title
             priceTextView.text = houseModel.price
 
-            view.setOnClickListener {
-                itemClicked(houseModel)
-            }
-
             Glide.with(thumbnailImageView.context)
                 .load(houseModel.imageUrl)
+                .transform(CenterCrop(), RoundedCorners(dpToPx(view.context, 12)))
                 .into(thumbnailImageView)
         }
 
@@ -37,14 +38,19 @@ class HouseViewPagerAdapter(val itemClicked: (HouseModel) -> Unit): ListAdapter<
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return ItemViewHolder(inflater.inflate(R.layout.item_house_detail_for_viewpager, parent, false))
+        return ItemViewHolder(inflater.inflate(R.layout.item_house, parent, false))
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.bind(currentList[position])
-//        holder.view.setOnClickListener {
-//            Log.d("KKKK", "${position}번째 아이템입니다, ${currentList[position]}")
-//        }
+        holder.view.setOnClickListener {
+            Log.d("KKKK", "${position}번째 아이템입니다, ${currentList[position]}")
+        }
+    }
+
+    // dp값을 px로 변경하는 함수
+    private fun dpToPx(context: Context, dp: Int): Int {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), context.resources.displayMetrics).toInt()
     }
 
     companion object {
